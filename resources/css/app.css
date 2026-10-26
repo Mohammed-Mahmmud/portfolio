@@ -1,0 +1,92 @@
+@import 'tailwindcss';
+
+@source '../../vendor/laravel/framework/src/Illuminate/Pagination/resources/views/*.blade.php';
+@source '../../storage/framework/views/*.php';
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+    --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
+    --font-display: 'Plus Jakarta Sans', 'Inter', ui-sans-serif, system-ui, sans-serif;
+}
+
+@layer base {
+    html {
+        scroll-behavior: smooth;
+        scroll-padding-top: 6rem;
+    }
+
+    body {
+        @apply bg-zinc-50 font-sans text-zinc-600 antialiased dark:bg-zinc-950 dark:text-zinc-400;
+    }
+
+    h1, h2, h3 {
+        @apply font-display tracking-tight;
+    }
+
+    ::selection {
+        @apply bg-indigo-500/20 text-zinc-900 dark:text-white;
+    }
+
+    :focus-visible {
+        @apply outline-2 outline-offset-2 outline-indigo-500;
+    }
+}
+
+@layer components {
+    .container-page {
+        @apply mx-auto w-full max-w-6xl px-5 sm:px-8;
+    }
+
+    .eyebrow {
+        @apply text-sm font-semibold tracking-wide text-indigo-600 uppercase dark:text-indigo-400;
+    }
+
+    .section-title {
+        @apply mt-2 text-3xl font-bold text-zinc-900 sm:text-4xl dark:text-zinc-100;
+    }
+
+    .card {
+        @apply rounded-2xl border border-zinc-200/80 bg-white shadow-sm dark:border-zinc-800 dark:bg-zinc-900/60;
+    }
+
+    .btn-primary {
+        @apply inline-flex items-center justify-center gap-2 rounded-lg bg-indigo-600 px-5 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-indigo-500 active:bg-indigo-700;
+    }
+
+    .btn-secondary {
+        @apply inline-flex items-center justify-center gap-2 rounded-lg border border-zinc-300 bg-white px-5 py-3 text-sm font-semibold text-zinc-800 shadow-sm transition hover:border-zinc-400 hover:bg-zinc-50 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100 dark:hover:border-zinc-600 dark:hover:bg-zinc-800;
+    }
+
+    .chip {
+        @apply inline-flex items-center rounded-md bg-zinc-100 px-2.5 py-1 text-xs font-medium text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300;
+    }
+
+    .chip-accent {
+        @apply inline-flex items-center rounded-md bg-indigo-50 px-2.5 py-1 text-xs font-medium text-indigo-700 ring-1 ring-indigo-600/10 ring-inset dark:bg-indigo-500/10 dark:text-indigo-300 dark:ring-indigo-400/20;
+    }
+
+    .input {
+        @apply w-full rounded-lg border border-zinc-300 bg-white px-4 py-2.5 text-zinc-900 shadow-sm transition placeholder:text-zinc-400 focus:border-indigo-500 focus:ring-4 focus:ring-indigo-500/10 focus:outline-none dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-100;
+    }
+
+    .reveal {
+        @apply translate-y-4 opacity-0 transition duration-700 ease-out;
+    }
+
+    .reveal.is-visible {
+        @apply translate-y-0 opacity-100;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    html {
+        scroll-behavior: auto;
+    }
+
+    .reveal {
+        opacity: 1;
+        transform: none;
+        transition: none;
+    }
+}
