@@ -14,7 +14,7 @@ class ProjectsByCategoryChart extends ChartWidget
 
     protected ?string $description = 'A project can belong to more than one category';
 
-    protected ?string $maxHeight = '260px';
+    protected ?string $maxHeight = '340px';
 
     protected function getType(): string
     {
@@ -29,11 +29,9 @@ class ProjectsByCategoryChart extends ChartWidget
             ->countBy()
             ->sortDesc();
 
-        // Keep the chart readable: the long tail folds into "Other".
-        $top = $counts->take(7);
-        if ($counts->count() > 7) {
-            $top->put('Other', $counts->slice(7)->sum());
-        }
+        // Every category gets its own row; folding the long tail into "Other" made that bar
+        // the tallest and misrepresented the mix.
+        $top = $counts->take(16);
 
         return [
             'datasets' => [
@@ -45,7 +43,7 @@ class ProjectsByCategoryChart extends ChartWidget
                     'borderWidth' => 0,
                     'borderRadius' => 4,
                     'borderSkipped' => 'start',
-                    'maxBarThickness' => 24,
+                    'maxBarThickness' => 14,
                 ],
             ],
             'labels' => $top->keys()->all(),
@@ -58,7 +56,7 @@ class ProjectsByCategoryChart extends ChartWidget
             'indexAxis' => 'y',
             'scales' => [
                 'x' => ['ticks' => ['precision' => 0]],
-                'y' => ['grid' => ['display' => false]],
+                'y' => ['grid' => ['display' => false], 'ticks' => ['autoSkip' => false]],
             ],
         ]);
     }

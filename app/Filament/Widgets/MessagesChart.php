@@ -15,7 +15,7 @@ class MessagesChart extends ChartWidget
 
     protected ?string $description = 'Contact form submissions per week, last 12 weeks';
 
-    protected ?string $maxHeight = '260px';
+    protected ?string $maxHeight = '340px';
 
     protected function getType(): string
     {
@@ -35,7 +35,7 @@ class MessagesChart extends ChartWidget
                     'backgroundColor' => ChartStyle::ACCENT_WASH,
                     'fill' => 'origin',
                     'borderWidth' => 2,
-                    'tension' => 0.3,
+                    'tension' => 0,
                     'pointRadius' => 4,
                     'pointHoverRadius' => 6,
                     'pointBackgroundColor' => ChartStyle::ACCENT,
@@ -50,6 +50,7 @@ class MessagesChart extends ChartWidget
     {
         return ChartStyle::options([
             'scales' => [
+                'x' => ['ticks' => ['maxRotation' => 0, 'autoSkip' => true, 'maxTicksLimit' => 6]],
                 'y' => ['ticks' => ['precision' => 0]],
             ],
         ]);

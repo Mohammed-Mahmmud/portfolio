@@ -20,7 +20,8 @@ class ChartStyle
     public static function options(array $overrides = []): array
     {
         return array_replace_recursive([
-            'maintainAspectRatio' => false,
+            'maintainAspectRatio' => true,
+            'aspectRatio' => 1.45,
             'interaction' => ['mode' => 'index', 'intersect' => false],
             'plugins' => [
                 // Single series: the heading names it, so a legend box adds nothing.
