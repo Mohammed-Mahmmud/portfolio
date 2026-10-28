@@ -2,6 +2,10 @@
 
 namespace Tests\Feature;
 
+use App\Filament\Widgets\LatestMessages;
+use App\Filament\Widgets\MessagesChart;
+use App\Filament\Widgets\PortfolioStats;
+use App\Filament\Widgets\ProjectsByCategoryChart;
 use App\Mail\NewContactMessage;
 use App\Models\Message;
 use App\Models\Project;
@@ -72,6 +76,20 @@ class PortfolioTest extends TestCase
         foreach (['/admin', '/admin/profiles', '/admin/experiences', '/admin/projects', '/admin/skill-groups', '/admin/education', '/admin/messages'] as $url) {
             $this->get($url)->assertOk();
         }
+    }
+
+    public function test_dashboard_widgets_render(): void
+    {
+        $this->actingAs(User::factory()->create());
+
+        foreach ([PortfolioStats::class, MessagesChart::class, ProjectsByCategoryChart::class, LatestMessages::class] as $widget) {
+            Livewire::test($widget)->assertOk();
+        }
+
+        Message::create(['name' => 'A', 'email' => 'a@example.com', 'body' => 'Hi']);
+
+        $this->assertSame(1, array_sum(Message::weeklyCounts()));
+        Livewire::test(LatestMessages::class)->assertCanSeeTableRecords(Message::all());
     }
 
     public function test_admin_can_change_email_and_password(): void
