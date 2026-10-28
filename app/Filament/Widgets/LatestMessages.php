@@ -2,6 +2,7 @@
 
 namespace App\Filament\Widgets;
 
+use App\Filament\Actions\ReplyToMessageAction;
 use App\Filament\Resources\Messages\MessageResource;
 use App\Models\Message;
 use Filament\Actions\Action;
@@ -47,6 +48,9 @@ class LatestMessages extends TableWidget
                 TextColumn::make('created_at')
                     ->label('Received')
                     ->since(),
+            ])
+            ->recordActions([
+                ReplyToMessageAction::make(),
             ])
             ->headerActions([
                 Action::make('all')

@@ -2,8 +2,8 @@
 
 namespace App\Filament\Resources\Messages\Tables;
 
+use App\Filament\Actions\ReplyToMessageAction;
 use App\Models\Message;
-use Filament\Actions\Action;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
@@ -32,7 +32,16 @@ class MessagesTable
                     ->description(fn (Message $record) => $record->email),
                 TextColumn::make('subject')
                     ->searchable()
-                    ->limit(50),
+                    ->limit(50)
+                    ->placeholder('No subject'),
+                TextColumn::make('replied_at')
+                    ->label('Status')
+                    ->state(fn (Message $record) => $record->replied_at ? 'Replied' : null)
+                    ->badge()
+                    ->color('success')
+                    ->icon(Heroicon::OutlinedCheck)
+                    ->tooltip(fn (Message $record) => $record->replied_at?->format('M j, Y g:i A'))
+                    ->placeholder('—'),
                 TextColumn::make('created_at')
                     ->label('Received')
                     ->since()
@@ -42,14 +51,14 @@ class MessagesTable
                 TernaryFilter::make('read_at')
                     ->label('Read')
                     ->nullable(),
+                TernaryFilter::make('replied_at')
+                    ->label('Replied')
+                    ->nullable(),
             ])
             ->recordActions([
                 ViewAction::make()
                     ->after(fn (Message $record) => $record->read_at ?? $record->forceFill(['read_at' => now()])->save()),
-                Action::make('reply')
-                    ->icon(Heroicon::OutlinedPaperAirplane)
-                    ->url(fn (Message $record) => 'mailto:'.$record->email.'?subject='.rawurlencode('Re: '.($record->subject ?? 'Your message')))
-                    ->openUrlInNewTab(),
+                ReplyToMessageAction::make(),
                 DeleteAction::make(),
             ])
             ->toolbarActions([

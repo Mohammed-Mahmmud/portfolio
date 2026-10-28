@@ -13,6 +13,7 @@ class Message extends Model
     {
         return [
             'read_at' => 'datetime',
+            'replied_at' => 'datetime',
         ];
     }
 

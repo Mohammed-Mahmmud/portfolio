@@ -2,11 +2,13 @@
 
 namespace Tests\Feature;
 
+use App\Filament\Resources\Messages\Pages\ListMessages;
 use App\Filament\Resources\Projects\Pages\ListProjects;
 use App\Filament\Widgets\LatestMessages;
 use App\Filament\Widgets\MessagesChart;
 use App\Filament\Widgets\PortfolioStats;
 use App\Filament\Widgets\ProjectsByCategoryChart;
+use App\Mail\ContactReply;
 use App\Mail\NewContactMessage;
 use App\Models\Message;
 use App\Models\Profile;
@@ -103,6 +105,53 @@ class PortfolioTest extends TestCase
         $project->refresh();
         $this->assertTrue($project->is_featured);
         $this->assertFalse($project->is_visible);
+    }
+
+    public function test_reply_modal_emails_the_sender_and_marks_replied(): void
+    {
+        Mail::fake();
+        $this->actingAs(User::factory()->create());
+        $message = Message::create(['name' => 'Sara Recruiter', 'email' => 'sara@company.com', 'subject' => 'Backend role', 'body' => 'Are you open to a role?']);
+
+        Livewire::test(ListMessages::class)
+            ->mountTableAction('reply', $message)
+            ->assertTableActionDataSet(['subject' => 'Re: Backend role']);
+
+        Livewire::test(ListMessages::class)
+            ->callTableAction('reply', $message, data: [
+                'subject' => 'Re: Backend role',
+                'body' => "Hi Sara,\n\nYes, happy to talk.",
+            ])
+            ->assertHasNoTableActionErrors()
+            ->assertNotified('Reply sent');
+
+        Mail::assertSent(ContactReply::class, function (ContactReply $mail) {
+            $html = $mail->render();
+
+            return $mail->hasTo('sara@company.com')
+                && $mail->hasSubject('Re: Backend role')
+                && $mail->hasFrom(config('mail.from.address'), 'Mohamed Khater')
+                && str_contains($html, 'happy to talk')
+                && str_contains($html, 'Are you open to a role?')
+                && str_contains($html, 'Senior Laravel Backend Engineer')
+                && ! str_contains($html, 'All rights reserved');
+        });
+
+        $this->assertNotNull($message->refresh()->replied_at);
+        $this->assertNotNull($message->read_at);
+    }
+
+    public function test_failed_reply_is_reported_and_not_marked_replied(): void
+    {
+        $this->actingAs(User::factory()->create());
+        $message = Message::create(['name' => 'A', 'email' => 'a@example.com', 'body' => 'Hi']);
+        Mail::shouldReceive('to')->andThrow(new \RuntimeException('Connection refused'));
+
+        Livewire::test(ListMessages::class)
+            ->callTableAction('reply', $message, data: ['subject' => 'Re: Hi', 'body' => 'Hello'])
+            ->assertNotified('Reply not sent');
+
+        $this->assertNull($message->refresh()->replied_at);
     }
 
     public function test_dashboard_widgets_render(): void
