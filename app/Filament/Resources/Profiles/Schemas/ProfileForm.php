@@ -134,8 +134,15 @@ class ProfileForm
                 FileUpload::make('avatar')
                     ->image()
                     ->avatar()
+                    ->imageEditor()
+                    ->imageEditorAspectRatios(['1:1', '4:5'])
+                    ->imageEditorViewportWidth(800)
+                    ->imageEditorViewportHeight(800)
                     ->disk('public')
-                    ->directory('profile'),
+                    ->directory('profile')
+                    ->extraAttributes([
+                        'style' => 'z-index: 9999 !important; position: relative;',
+                    ]),
                 FileUpload::make('cv_file')
                     ->label('CV (PDF)')
                     ->acceptedFileTypes(['application/pdf'])

@@ -8,7 +8,6 @@ use App\Models\Experience;
 use App\Models\Message;
 use App\Models\Profile;
 use App\Models\Project;
-use App\Models\SkillGroup;
 use Filament\Support\Icons\Heroicon;
 use Filament\Widgets\StatsOverviewWidget;
 use Filament\Widgets\StatsOverviewWidget\Stat;
@@ -16,6 +15,10 @@ use Filament\Widgets\StatsOverviewWidget\Stat;
 class PortfolioStats extends StatsOverviewWidget
 {
     protected static ?int $sort = 1;
+
+    protected int|string|array $columnSpan = 'full';
+
+    protected int|array|null $columns = 3;
 
     protected function getStats(): array
     {
@@ -25,7 +28,6 @@ class PortfolioStats extends StatsOverviewWidget
 
         $projects = Project::query();
         $current = Experience::query()->whereNull('end_date')->value('company');
-        $skillGroups = SkillGroup::query()->get();
 
         return [
             Stat::make('Unread messages', $unread)
@@ -41,9 +43,6 @@ class PortfolioStats extends StatsOverviewWidget
             Stat::make('Experience', (Profile::query()->value('years_experience') ?? 0).'+ years')
                 ->description(Experience::query()->count().' positions'.($current ? ' · now at '.$current : ''))
                 ->descriptionIcon(Heroicon::Briefcase),
-            Stat::make('Skills', $skillGroups->sum(fn (SkillGroup $group) => count($group->items ?? [])))
-                ->description('across '.$skillGroups->count().' groups')
-                ->descriptionIcon(Heroicon::CpuChip),
         ];
     }
 }

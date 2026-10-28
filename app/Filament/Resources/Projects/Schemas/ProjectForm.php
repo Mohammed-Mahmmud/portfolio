@@ -54,8 +54,15 @@ class ProjectForm
                     ->schema([
                         FileUpload::make('image')
                             ->image()
+                            ->imageEditor()
+                            ->imageEditorAspectRatios(['16:9', '4:3', '1:1'])
+                            ->imageEditorViewportWidth(1280)
+                            ->imageEditorViewportHeight(720)
                             ->disk('public')
-                            ->directory('projects'),
+                            ->directory('projects')
+                            ->extraAttributes([
+                                'style' => 'z-index: 9999 !important; position: relative;',
+                            ]),
                         Toggle::make('is_featured')
                             ->label('Featured'),
                         Toggle::make('is_visible')
