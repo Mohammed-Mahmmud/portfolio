@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\Profiles\Schemas;
 
+use Filament\Forms\Components\Checkbox;
 use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Select;
@@ -112,18 +113,32 @@ class ProfileForm
     {
         return Section::make('Stats')
             ->schema([
+                TextInput::make('years_experience')
+                    ->label('Years of experience')
+                    ->helperText('Shown across the site — no need to add it as a stat below.')
+                    ->numeric()
+                    ->minValue(0)
+                    ->maxValue(60)
+                    ->suffix('years')
+                    ->required(),
+                Checkbox::make('years_experience_plus')
+                    ->label('Show "+" after the number (e.g. 6+ years)')
+                    ->default(true),
                 Repeater::make('stats')
-                    ->hiddenLabel()
+                    ->label('Other stats')
                     ->schema([
                         TextInput::make('value')
+                            ->placeholder('25M+')
                             ->required(),
                         TextInput::make('label')
+                            ->placeholder('Neo4j records optimized')
                             ->required()
                             ->columnSpan(2),
                     ])
                     ->columns(3)
                     ->reorderable()
-                    ->maxItems(4),
+                    ->defaultItems(0)
+                    ->addActionLabel('Add stat'),
             ]);
     }
 
@@ -135,7 +150,7 @@ class ProfileForm
                     ->image()
                     ->avatar()
                     ->imageEditor()
-                    ->imageEditorAspectRatios(['1:1', '4:5'])
+                    ->imageEditorAspectRatioOptions(['1:1', '4:5'])
                     ->imageEditorViewportWidth(800)
                     ->imageEditorViewportHeight(800)
                     ->disk('public')
@@ -150,8 +165,6 @@ class ProfileForm
                     ->directory('cv')
                     ->preserveFilenames(),
                 Toggle::make('available_for_work'),
-                TextInput::make('years_experience')
-                    ->numeric(),
             ]);
     }
 }

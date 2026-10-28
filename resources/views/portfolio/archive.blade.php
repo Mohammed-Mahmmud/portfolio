@@ -5,7 +5,7 @@
         </a>
         <p class="eyebrow mt-8">Archive</p>
         <h1 class="section-title !text-4xl sm:!text-5xl">All projects</h1>
-        <p class="mt-4 max-w-2xl">A complete list of the platforms and products I've worked on over the past {{ $profile->years_experience }}+ years.</p>
+        <p class="mt-4 max-w-2xl">A complete list of the platforms and products I've worked on over the past {{ $profile->yearsLabel() }} years.</p>
 
         <div class="card mt-10 overflow-hidden">
             <table class="w-full text-left text-sm">

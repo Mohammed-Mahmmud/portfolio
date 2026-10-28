@@ -33,7 +33,6 @@ class PortfolioSeeder extends Seeder
             'cv_file' => 'cv/Mohamed_Khater_Senior_Backend_Engineer_CV.pdf',
             'years_experience' => 6,
             'stats' => [
-                ['label' => 'Years of experience', 'value' => '6+'],
                 ['label' => 'Projects delivered', 'value' => '15+'],
                 ['label' => 'Neo4j records optimized', 'value' => '25M+'],
                 ['label' => 'Payment gateways integrated', 'value' => '2'],

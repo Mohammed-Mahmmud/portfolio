@@ -55,7 +55,7 @@ class ProjectForm
                         FileUpload::make('image')
                             ->image()
                             ->imageEditor()
-                            ->imageEditorAspectRatios(['16:9', '4:3', '1:1'])
+                            ->imageEditorAspectRatioOptions(['16:9', '4:3', '1:1'])
                             ->imageEditorViewportWidth(1280)
                             ->imageEditorViewportHeight(720)
                             ->disk('public')

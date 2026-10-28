@@ -8,6 +8,7 @@ use App\Filament\Widgets\PortfolioStats;
 use App\Filament\Widgets\ProjectsByCategoryChart;
 use App\Mail\NewContactMessage;
 use App\Models\Message;
+use App\Models\Profile;
 use App\Models\Project;
 use App\Models\User;
 use Database\Seeders\PortfolioSeeder;
@@ -35,6 +36,15 @@ class PortfolioTest extends TestCase
         $this->get('/')->assertOk()->assertSee('Mohamed Khater')->assertSee('Gap Cloud');
         $this->get('/archive')->assertOk()->assertSee('TrioAPI');
         $this->get('/projects/multi-tenant-erp-system')->assertOk()->assertSee('Key highlights');
+    }
+
+    public function test_years_plus_sign_follows_the_checkbox(): void
+    {
+        Profile::query()->update(['years_experience' => 7, 'years_experience_plus' => true]);
+        $this->get('/')->assertSee('7+ years building');
+
+        Profile::query()->update(['years_experience_plus' => false]);
+        $this->get('/')->assertSee('7 years building')->assertDontSee('7+ years building');
     }
 
     public function test_hidden_project_returns_404(): void

@@ -66,7 +66,7 @@
                     </div>
                 @endif
                 <div class="absolute -top-5 -right-3 rounded-2xl border border-zinc-200 bg-white/95 px-4 py-3 text-center shadow-xl backdrop-blur sm:-right-8 dark:border-zinc-700 dark:bg-zinc-900/95">
-                    <span class="block text-2xl font-bold text-indigo-600 dark:text-indigo-400">{{ $profile->years_experience }}+</span>
+                    <span class="block text-2xl font-bold text-indigo-600 dark:text-indigo-400">{{ $profile->yearsLabel() }}</span>
                     <span class="block text-xs text-zinc-500">Years of experience</span>
                 </div>
             </div>
@@ -74,14 +74,17 @@
 
         @if (! empty($profile->stats))
             <div class="container-page pb-8">
-                <dl class="card grid grid-cols-2 divide-zinc-200 lg:grid-cols-4 lg:divide-x dark:divide-zinc-800">
-                    @foreach ($profile->stats as $stat)
-                        <div class="flex flex-col-reverse gap-1 px-6 py-6 text-center">
-                            <dt class="text-sm text-zinc-500">{{ $stat['label'] }}</dt>
-                            <dd class="font-display text-3xl font-bold text-zinc-900 dark:text-white">{{ $stat['value'] }}</dd>
-                        </div>
-                    @endforeach
-                </dl>
+                {{-- Wraps to any number of stats; the -ml/-mt offset hides the outer edge of each cell's border. --}}
+                <div class="card overflow-hidden">
+                    <dl class="-mt-px -ml-px flex flex-wrap">
+                        @foreach ($profile->stats as $stat)
+                            <div class="flex min-w-[45%] flex-1 basis-48 sm:min-w-0 flex-col-reverse gap-1 border-t border-l border-zinc-200 px-6 py-6 text-center dark:border-zinc-800">
+                                <dt class="text-sm text-zinc-500">{{ $stat['label'] }}</dt>
+                                <dd class="font-display text-3xl font-bold text-zinc-900 dark:text-white">{{ $stat['value'] }}</dd>
+                            </div>
+                        @endforeach
+                    </dl>
+                </div>
             </div>
         @endif
     </section>
@@ -105,7 +108,7 @@
                     @foreach (array_filter([
                         'Role' => $profile->title,
                         'Currently' => $current ? $current->role.' at '.$current->company : null,
-                        'Experience' => $profile->years_experience ? $profile->years_experience.'+ years' : null,
+                        'Experience' => $profile->years_experience ? $profile->yearsLabel().' years' : null,
                         'Location' => $profile->location,
                         'Email' => $profile->email,
                     ]) as $label => $value)
@@ -142,7 +145,7 @@
             <div class="max-w-2xl">
                 <p class="eyebrow">Experience</p>
                 <h2 class="section-title">Where I've worked</h2>
-                <p class="mt-4">{{ $profile->years_experience }}+ years building backend systems for ERP, fintech, tourism, real estate and e-learning products.</p>
+                <p class="mt-4">{{ $profile->yearsLabel() }} years building backend systems for ERP, fintech, tourism, real estate and e-learning products.</p>
             </div>
 
             <ol class="relative mt-12 space-y-6 before:absolute before:top-2 before:bottom-2 before:left-[19px] before:w-px before:bg-zinc-200 dark:before:bg-zinc-800">

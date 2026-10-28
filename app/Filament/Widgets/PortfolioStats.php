@@ -40,7 +40,7 @@ class PortfolioStats extends StatsOverviewWidget
                 ->description((clone $projects)->where('is_featured', true)->count().' featured · '.(clone $projects)->where('is_visible', false)->count().' hidden')
                 ->descriptionIcon(Heroicon::Star)
                 ->url(ProjectResource::getUrl()),
-            Stat::make('Experience', (Profile::query()->value('years_experience') ?? 0).'+ years')
+            Stat::make('Experience', Profile::current()->yearsLabel().' years')
                 ->description(Experience::query()->count().' positions'.($current ? ' · now at '.$current : ''))
                 ->descriptionIcon(Heroicon::Briefcase),
         ];
