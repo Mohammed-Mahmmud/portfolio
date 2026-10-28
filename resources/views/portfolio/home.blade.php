@@ -125,9 +125,20 @@
         </div>
 
         @if (! empty($profile->expertise))
-            <div class="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            @php
+                // A 12-column grid lets any count from 1 to 6 fill complete rows (e.g. 4 in a row, 5 = 2 + 3).
+                $expertiseCount = count($profile->expertise);
+                $spanFor = fn (int $index) => match ($expertiseCount) {
+                    1 => 'lg:col-span-12',
+                    2 => 'lg:col-span-6',
+                    4 => 'lg:col-span-3',
+                    5 => $index < 2 ? 'lg:col-span-6' : 'lg:col-span-4',
+                    default => 'lg:col-span-4',
+                };
+            @endphp
+            <div class="mt-14 grid gap-5 sm:grid-cols-2 lg:grid-cols-12">
                 @foreach ($profile->expertise as $item)
-                    <div class="card group p-6 transition hover:-translate-y-1 hover:shadow-md">
+                    <div class="card group p-6 transition hover:-translate-y-1 hover:shadow-md {{ $spanFor($loop->index) }}">
                         <span class="grid size-11 place-items-center rounded-xl bg-indigo-50 text-indigo-600 ring-1 ring-indigo-100 transition group-hover:bg-indigo-600 group-hover:text-white dark:bg-indigo-500/10 dark:text-indigo-400 dark:ring-indigo-500/20">
                             <x-ui.icon :name="$item['icon'] ?? 'code'" class="size-5" />
                         </span>

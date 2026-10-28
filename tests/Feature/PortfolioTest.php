@@ -14,6 +14,8 @@ use App\Models\Message;
 use App\Models\Profile;
 use App\Models\Project;
 use App\Models\User;
+use App\Models\SkillGroup;
+use Database\Seeders\EInvoicingSeeder;
 use Database\Seeders\PortfolioSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Filament\Auth\Pages\EditProfile;
@@ -48,6 +50,56 @@ class PortfolioTest extends TestCase
 
         Profile::query()->update(['years_experience_plus' => false]);
         $this->get('/')->assertSee('7 years building')->assertDontSee('7+ years building');
+    }
+
+    public function test_e_invoicing_seeder_is_additive_and_idempotent(): void
+    {
+        $profileBefore = Profile::query()->first();
+        $groupsBefore = SkillGroup::query()->count();
+
+        $this->seed(EInvoicingSeeder::class);
+        $this->seed(EInvoicingSeeder::class);
+
+        $group = SkillGroup::query()->where('name', 'E-Invoicing & Tax Compliance')->sole();
+        $this->assertContains('Saudi ZATCA Phase 2 (FATOORA)', $group->items);
+        $this->assertContains('B2B Clearance', $group->items);
+        $this->assertContains('B2C Reporting', $group->items);
+        $this->assertContains('Egypt ETA E-Invoicing', $group->items);
+        $this->assertSame($groupsBefore + 1, SkillGroup::query()->count());
+        $this->assertNotContains('ETA E-Invoicing', SkillGroup::query()->where('name', 'Fintech & Payments')->value('items'));
+
+        $expertise = Profile::query()->first()->expertise;
+        $titles = array_column($expertise, 'title');
+        $this->assertSame(1, array_count_values($titles)['E-Invoicing Compliance']);
+        $this->assertSame(count($profileBefore->expertise) + 1, count($expertise));
+        $this->assertSame('E-Invoicing Compliance', $titles[array_search('Payments & Billing', $titles) + 1]);
+
+        $erp = Project::query()->where('slug', 'multi-tenant-erp-system')->sole();
+        $eta = Project::query()->where('slug', 'egypt-eta-e-invoicing')->sole();
+        $zatca = Project::query()->where('slug', 'zatca-e-invoicing-integration')->sole();
+        $this->assertSame([$erp->sort_order + 1, $erp->sort_order + 2], [$eta->sort_order, $zatca->sort_order]);
+        $this->assertSame(Project::query()->count(), Project::query()->distinct()->count('sort_order'));
+        $this->get('/projects/egypt-eta-e-invoicing')->assertOk()
+            ->assertSee('tax-based discount')
+            ->assertSee('USB token')
+            ->assertSee('e-Receipts')
+            ->assertSee('GS1 / EGS');
+        $this->assertContains('ETA e-Receipt', $group->items);
+
+        $this->get('/')->assertOk()->assertSee('Saudi ZATCA Phase 2 (FATOORA)')->assertSee('ZATCA E-Invoicing Integration');
+        $this->get('/projects/zatca-e-invoicing-integration')->assertOk()->assertSee('Clearance API')->assertSee('Reporting API');
+    }
+
+    public function test_e_invoicing_seeder_keeps_admin_changes_to_the_project(): void
+    {
+        $this->seed(EInvoicingSeeder::class);
+        Project::query()->where('slug', 'zatca-e-invoicing-integration')->update(['is_featured' => true, 'image' => 'projects/zatca.png']);
+
+        $this->seed(EInvoicingSeeder::class);
+
+        $project = Project::query()->where('slug', 'zatca-e-invoicing-integration')->sole();
+        $this->assertTrue($project->is_featured);
+        $this->assertSame('projects/zatca.png', $project->image);
     }
 
     public function test_hidden_project_returns_404(): void

@@ -84,6 +84,7 @@ class ProfileForm
                         Select::make('icon')
                             ->options([
                                 'credit-card' => 'Credit card',
+                                'receipt' => 'Receipt / invoice',
                                 'layers' => 'Layers',
                                 'gauge' => 'Gauge',
                                 'shield-check' => 'Shield',

@@ -17,6 +17,9 @@ class DatabaseSeeder extends Seeder
             ['name' => 'Mohamed Khater', 'password' => 'password'],
         );
 
-        $this->call(PortfolioSeeder::class);
+        $this->call([
+            PortfolioSeeder::class,
+            EInvoicingSeeder::class,
+        ]);
     }
 }
