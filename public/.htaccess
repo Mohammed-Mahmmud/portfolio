@@ -2,9 +2,6 @@
     <IfModule mod_negotiation.c>
         Options -MultiViews -Indexes
     </IfModule>
-    <FilesMatch \.php$>
-    SetHandler application/x-httpd-alt-php84
-    </FilesMatch>
     RewriteEngine On
 
     # Handle Authorization Header
