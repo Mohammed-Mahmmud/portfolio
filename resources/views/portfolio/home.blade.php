@@ -283,15 +283,37 @@
                 <h2 class="section-title">Tools &amp; technologies</h2>
             </div>
 
-            <div class="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            @php
+                // Pick an icon from the group's name so new groups added in the admin still get one.
+                $skillIcon = fn (string $name) => match (true) {
+                    str_contains($name, 'Invoic') || str_contains($name, 'Tax') => 'receipt',
+                    str_contains($name, 'Payment') || str_contains($name, 'Fintech') => 'credit-card',
+                    str_contains($name, 'Database') => 'database',
+                    str_contains($name, 'Cach') || str_contains($name, 'Queue') => 'zap',
+                    str_contains($name, 'Test') => 'flask',
+                    str_contains($name, 'DevOps') || str_contains($name, 'Cloud') => 'cloud',
+                    str_contains($name, 'Frontend') => 'monitor',
+                    str_contains($name, 'Leader') => 'users',
+                    default => 'code',
+                };
+            @endphp
+            <div class="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
                 @foreach ($skillGroups as $group)
-                    <div class="rounded-2xl border border-zinc-200 bg-zinc-50/60 p-6 dark:border-zinc-800 dark:bg-zinc-950/40">
-                        <h3 class="text-sm font-semibold text-zinc-900 dark:text-zinc-100">{{ $group->name }}</h3>
-                        <div class="mt-4 flex flex-wrap gap-1.5">
-                            @foreach ($group->items ?? [] as $skill)
-                                <span class="rounded-md border border-zinc-200 bg-white px-2.5 py-1 text-xs font-medium text-zinc-700 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300">{{ $skill }}</span>
-                            @endforeach
+                    <div class="group flex flex-col rounded-2xl border border-zinc-200 bg-zinc-50/60 p-6 transition hover:border-indigo-300 hover:shadow-sm dark:border-zinc-800 dark:bg-zinc-950/40 dark:hover:border-indigo-500/40">
+                        <div class="flex items-center gap-3">
+                            <span class="grid size-10 shrink-0 place-items-center rounded-xl bg-indigo-50 text-indigo-600 ring-1 ring-indigo-100 transition group-hover:bg-indigo-600 group-hover:text-white dark:bg-indigo-500/10 dark:text-indigo-400 dark:ring-indigo-500/20">
+                                <x-ui.icon :name="$skillIcon($group->name)" class="size-5" />
+                            </span>
+                            <div class="min-w-0">
+                                <h3 class="text-sm font-semibold text-zinc-900 dark:text-zinc-100">{{ $group->name }}</h3>
+                                <p class="text-xs text-zinc-500">{{ count($group->items ?? []) }} skills</p>
+                            </div>
                         </div>
+                        <ul class="mt-5 flex flex-wrap gap-1.5">
+                            @foreach ($group->items ?? [] as $skill)
+                                <li class="rounded-md border border-zinc-200 bg-white px-2.5 py-1 text-xs font-medium whitespace-nowrap text-zinc-700 dark:border-zinc-700 dark:bg-zinc-900 dark:text-zinc-300">{{ $skill }}</li>
+                            @endforeach
+                        </ul>
                     </div>
                 @endforeach
             </div>
