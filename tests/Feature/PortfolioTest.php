@@ -8,7 +8,10 @@ use App\Models\Project;
 use App\Models\User;
 use Database\Seeders\PortfolioSeeder;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Filament\Auth\Pages\EditProfile;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Mail;
+use Livewire\Livewire;
 use Tests\TestCase;
 
 class PortfolioTest extends TestCase
@@ -69,6 +72,45 @@ class PortfolioTest extends TestCase
         foreach (['/admin', '/admin/profiles', '/admin/experiences', '/admin/projects', '/admin/skill-groups', '/admin/education', '/admin/messages'] as $url) {
             $this->get($url)->assertOk();
         }
+    }
+
+    public function test_admin_can_change_email_and_password(): void
+    {
+        $user = User::factory()->create(['email' => 'old@example.com', 'password' => 'old-password']);
+        $this->actingAs($user);
+
+        $this->get('/admin/profile')->assertOk();
+
+        Livewire::test(EditProfile::class)
+            ->fillForm([
+                'email' => 'new@example.com',
+                'password' => 'New-strong-pass-123',
+                'passwordConfirmation' => 'New-strong-pass-123',
+                'currentPassword' => 'old-password',
+            ])
+            ->call('save')
+            ->assertHasNoFormErrors();
+
+        $user->refresh();
+        $this->assertSame('new@example.com', $user->email);
+        $this->assertTrue(Hash::check('New-strong-pass-123', $user->password));
+    }
+
+    public function test_changing_password_requires_current_password(): void
+    {
+        $user = User::factory()->create(['password' => 'old-password']);
+        $this->actingAs($user);
+
+        Livewire::test(EditProfile::class)
+            ->fillForm([
+                'password' => 'New-strong-pass-123',
+                'passwordConfirmation' => 'New-strong-pass-123',
+                'currentPassword' => 'wrong-password',
+            ])
+            ->call('save')
+            ->assertHasFormErrors(['currentPassword']);
+
+        $this->assertTrue(Hash::check('old-password', $user->refresh()->password));
     }
 
     public function test_contact_form_emails_the_owner(): void
