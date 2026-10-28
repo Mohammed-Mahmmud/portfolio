@@ -2,13 +2,13 @@
 
 namespace App\Filament\Resources\Experiences\Tables;
 
+use App\Filament\Tables\Columns\SavedToggleColumn;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Support\Enums\Width;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Table;
 
 class ExperiencesTable
@@ -32,7 +32,7 @@ class ExperiencesTable
                     ->date('M Y')
                     ->placeholder('Present')
                     ->sortable(),
-                ToggleColumn::make('is_visible')
+                SavedToggleColumn::make('is_visible')
                     ->label('Visible'),
             ])
             ->recordActions([

@@ -2,12 +2,12 @@
 
 namespace App\Filament\Resources\SkillGroups\Tables;
 
+use App\Filament\Tables\Columns\SavedToggleColumn;
 use Filament\Actions\BulkActionGroup;
 use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Tables\Columns\TextColumn;
-use Filament\Tables\Columns\ToggleColumn;
 use Filament\Tables\Table;
 
 class SkillGroupsTable
@@ -25,7 +25,7 @@ class SkillGroupsTable
                     ->label('Skills')
                     ->badge()
                     ->limitList(5),
-                ToggleColumn::make('is_visible')
+                SavedToggleColumn::make('is_visible')
                     ->label('Visible'),
             ])
             ->recordActions([

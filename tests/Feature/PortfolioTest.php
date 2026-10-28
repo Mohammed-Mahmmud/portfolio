@@ -2,6 +2,7 @@
 
 namespace Tests\Feature;
 
+use App\Filament\Resources\Projects\Pages\ListProjects;
 use App\Filament\Widgets\LatestMessages;
 use App\Filament\Widgets\MessagesChart;
 use App\Filament\Widgets\PortfolioStats;
@@ -86,6 +87,22 @@ class PortfolioTest extends TestCase
         foreach (['/admin', '/admin/profiles', '/admin/experiences', '/admin/projects', '/admin/skill-groups', '/admin/education', '/admin/messages'] as $url) {
             $this->get($url)->assertOk();
         }
+    }
+
+    public function test_project_toggle_columns_save_from_the_table(): void
+    {
+        $this->actingAs(User::factory()->create());
+        $project = Project::query()->where('is_featured', false)->firstOrFail();
+
+        Livewire::test(ListProjects::class)
+            ->call('updateTableColumnState', 'is_featured', (string) $project->getKey(), true)
+            ->assertNotified('Saved')
+            ->call('updateTableColumnState', 'is_visible', (string) $project->getKey(), false)
+            ->assertNotified('Saved');
+
+        $project->refresh();
+        $this->assertTrue($project->is_featured);
+        $this->assertFalse($project->is_visible);
     }
 
     public function test_dashboard_widgets_render(): void
