@@ -15,8 +15,11 @@ use App\Models\Profile;
 use App\Models\Project;
 use App\Models\User;
 use App\Models\SkillGroup;
+use Database\Seeders\AdditionalProjectsSeeder;
 use Database\Seeders\EInvoicingSeeder;
 use Database\Seeders\PortfolioSeeder;
+use Database\Seeders\ProjectImagesSeeder;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Filament\Auth\Pages\EditProfile;
 use Illuminate\Support\Facades\Hash;
@@ -100,6 +103,57 @@ class PortfolioTest extends TestCase
         $project = Project::query()->where('slug', 'zatca-e-invoicing-integration')->sole();
         $this->assertTrue($project->is_featured);
         $this->assertSame('projects/zatca.png', $project->image);
+    }
+
+    public function test_project_images_seeder_fills_only_projects_without_an_image(): void
+    {
+        Storage::fake('public');
+        Project::query()->where('slug', 'maharat')->update(['image' => 'projects/my-own-upload.png']);
+
+        $this->seed(ProjectImagesSeeder::class);
+
+        $this->assertSame('projects/e-shef.jpg', Project::query()->where('slug', 'e-shef')->value('image'));
+        Storage::disk('public')->assertExists('projects/e-shef.jpg');
+        $this->assertSame('projects/my-own-upload.png', Project::query()->where('slug', 'maharat')->value('image'));
+        Storage::disk('public')->assertMissing('projects/maharat.jpg');
+        $this->assertNull(Project::query()->where('slug', 'swyyp-platform')->value('image'));
+    }
+
+    public function test_additional_projects_seeder_adds_nile_future_once_with_its_image(): void
+    {
+        Storage::fake('public');
+
+        $this->seed(AdditionalProjectsSeeder::class);
+        $this->seed(AdditionalProjectsSeeder::class);
+        $this->seed(ProjectImagesSeeder::class);
+
+        $project = Project::query()->where('slug', 'nile-future')->sole();
+        $exam = Project::query()->where('slug', 'stc-exam-system-nile-future')->sole();
+
+        $this->assertSame($exam->sort_order + 1, $project->sort_order);
+        $this->assertSame('https://nilefuture.org', $project->url);
+        $this->assertSame('projects/nile-future.jpg', $project->image);
+        $this->assertSame('projects/bawarq.jpg', Project::query()->where('slug', 'bawarq')->value('image'));
+        $this->get('/projects/nile-future')->assertOk()->assertSee('onshore drilling');
+    }
+
+    public function test_admin_avatar_uses_the_profile_photo(): void
+    {
+        Profile::query()->update(['avatar' => 'profile/me.jpg']);
+        $user = User::factory()->create();
+
+        $this->assertSame(asset('storage/profile/me.jpg'), $user->getFilamentAvatarUrl());
+        $this->actingAs($user)->get('/admin')->assertOk()->assertSee('storage/profile/me.jpg', escape: false);
+    }
+
+    public function test_projects_table_shows_the_live_url(): void
+    {
+        $this->actingAs(User::factory()->create());
+
+        Livewire::test(ListProjects::class)
+            ->searchTable('bawarq')
+            ->assertSee('bawarq.org')
+            ->assertSee('https://bawarq.org', escape: false);
     }
 
     public function test_hidden_project_returns_404(): void

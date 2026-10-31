@@ -20,6 +20,8 @@ class DatabaseSeeder extends Seeder
         $this->call([
             PortfolioSeeder::class,
             EInvoicingSeeder::class,
+            AdditionalProjectsSeeder::class,
+            ProjectImagesSeeder::class,
         ]);
     }
 }

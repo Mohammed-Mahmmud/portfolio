@@ -224,10 +224,10 @@
         {{-- Featured --}}
         <div class="mt-10 grid gap-6 lg:grid-cols-3">
             @foreach ($featured as $project)
-                <article data-category="{{ $categoryKey($project) }}" class="card reveal group flex flex-col overflow-hidden transition hover:-translate-y-1 hover:shadow-lg">
+                <article data-category="{{ $categoryKey($project) }}" class="card reveal group relative flex flex-col overflow-hidden transition hover:-translate-y-1 hover:shadow-lg">
                     <div class="relative h-44 overflow-hidden bg-gradient-to-br from-indigo-600 via-indigo-500 to-sky-500">
                         @if ($project->image)
-                            <img src="{{ asset('storage/'.$project->image) }}" alt="" class="h-full w-full object-cover transition duration-500 group-hover:scale-105">
+                            <img src="{{ asset('storage/'.$project->image) }}" alt="{{ $project->title }} screenshot" class="h-full w-full object-cover object-top transition duration-500 group-hover:scale-105">
                         @else
                             <div class="absolute inset-0 opacity-20 [background-image:radial-gradient(white_1px,transparent_1px)] [background-size:16px_16px]"></div>
                             <div class="relative flex h-full flex-col justify-end p-6">
@@ -247,7 +247,15 @@
                                 <span class="chip-accent">{{ $tech }}</span>
                             @endforeach
                         </div>
-                        <span class="mt-6 inline-flex items-center gap-1.5 text-sm font-semibold text-indigo-600 dark:text-indigo-400">Read case study <x-ui.icon name="arrow-right" class="size-4 transition group-hover:translate-x-1" /></span>
+                        <div class="mt-6 flex flex-wrap items-center justify-between gap-3">
+                            <span class="inline-flex items-center gap-1.5 text-sm font-semibold text-indigo-600 dark:text-indigo-400">Read case study <x-ui.icon name="arrow-right" class="size-4 transition group-hover:translate-x-1" /></span>
+                            @if ($project->url)
+                                {{-- Sits above the card-wide link so it opens the live site, not the case study. --}}
+                                <a href="{{ $project->url }}" target="_blank" rel="noopener" class="relative z-10 inline-flex items-center gap-1.5 text-sm font-medium text-zinc-600 hover:text-indigo-600 dark:text-zinc-400 dark:hover:text-indigo-400">
+                                    <x-ui.icon name="external" class="size-4" /> Live site
+                                </a>
+                            @endif
+                        </div>
                     </div>
                 </article>
             @endforeach
@@ -256,19 +264,33 @@
         {{-- Others --}}
         <div class="mt-6 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
             @foreach ($others as $project)
-                <article data-category="{{ $categoryKey($project) }}" class="card reveal group relative flex flex-col p-6 transition hover:border-indigo-300 hover:shadow-md dark:hover:border-indigo-500/40">
-                    <div class="flex items-center justify-between">
-                        <span class="text-xs font-semibold tracking-wide text-indigo-600 uppercase dark:text-indigo-400">{{ $project->category }}</span>
-                        <x-ui.icon name="arrow-right" class="size-4 -rotate-45 text-zinc-400 transition group-hover:text-indigo-600" />
-                    </div>
-                    <h3 class="mt-3 text-base font-semibold text-zinc-900 dark:text-zinc-100">
-                        <a href="{{ route('projects.show', $project) }}" class="after:absolute after:inset-0">{{ $project->title }}</a>
-                    </h3>
-                    <p class="mt-2 flex-1 text-sm leading-relaxed">{{ $project->summary }}</p>
-                    <div class="mt-4 flex flex-wrap gap-1.5">
-                        @foreach (collect($project->tech_stack)->take(4) as $tech)
-                            <span class="chip">{{ $tech }}</span>
-                        @endforeach
+                <article data-category="{{ $categoryKey($project) }}" class="card reveal group relative flex flex-col overflow-hidden transition hover:border-indigo-300 hover:shadow-md dark:hover:border-indigo-500/40">
+                    @if ($project->image)
+                        <div class="aspect-video overflow-hidden border-b border-zinc-200 bg-zinc-100 dark:border-zinc-800 dark:bg-zinc-900">
+                            <img src="{{ asset('storage/'.$project->image) }}" alt="{{ $project->title }} screenshot" loading="lazy" class="h-full w-full object-cover object-top transition duration-500 group-hover:scale-105">
+                        </div>
+                    @endif
+                    <div class="flex flex-1 flex-col p-6">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-semibold tracking-wide text-indigo-600 uppercase dark:text-indigo-400">{{ $project->category }}</span>
+                            <x-ui.icon name="arrow-right" class="size-4 -rotate-45 text-zinc-400 transition group-hover:text-indigo-600" />
+                        </div>
+                        <h3 class="mt-3 text-base font-semibold text-zinc-900 dark:text-zinc-100">
+                            <a href="{{ route('projects.show', $project) }}" class="after:absolute after:inset-0">{{ $project->title }}</a>
+                        </h3>
+                        <p class="mt-2 flex-1 text-sm leading-relaxed">{{ $project->summary }}</p>
+                        <div class="mt-4 flex flex-wrap gap-1.5">
+                            @foreach (collect($project->tech_stack)->take(4) as $tech)
+                                <span class="chip">{{ $tech }}</span>
+                            @endforeach
+                        </div>
+                        @if ($project->url)
+                            {{-- Sits above the card-wide link so it opens the live site, not the case study. --}}
+                            <a href="{{ $project->url }}" target="_blank" rel="noopener" class="relative z-10 mt-5 inline-flex w-fit items-center gap-1.5 text-sm font-medium text-zinc-600 hover:text-indigo-600 dark:text-zinc-400 dark:hover:text-indigo-400">
+                                <x-ui.icon name="external" class="size-4" />
+                                {{ preg_replace('#^https?://(www\.)?#', '', rtrim($project->url, '/')) }}
+                            </a>
+                        @endif
                     </div>
                 </article>
             @endforeach

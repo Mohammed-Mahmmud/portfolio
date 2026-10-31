@@ -8,6 +8,7 @@ use Filament\Actions\DeleteAction;
 use Filament\Actions\DeleteBulkAction;
 use Filament\Actions\EditAction;
 use Filament\Support\Enums\Width;
+use Filament\Support\Icons\Heroicon;
 use Filament\Tables\Columns\ImageColumn;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\TernaryFilter;
@@ -23,11 +24,22 @@ class ProjectsTable
             ->columns([
                 ImageColumn::make('image')
                     ->disk('public')
-                    ->square(),
+                    ->imageWidth(96)
+                    ->imageHeight(54)
+                    ->extraImgAttributes(['class' => 'rounded-md object-cover']),
                 TextColumn::make('title')
                     ->searchable()
                     ->weight('bold')
                     ->description(fn ($record) => $record->category),
+                TextColumn::make('url')
+                    ->label('Live URL')
+                    ->formatStateUsing(fn (string $state) => preg_replace('#^https?://(www\.)?#', '', rtrim($state, '/')))
+                    ->url(fn ($record) => $record->url, shouldOpenInNewTab: true)
+                    ->icon(Heroicon::OutlinedArrowTopRightOnSquare)
+                    ->iconPosition('after')
+                    ->color('primary')
+                    ->placeholder('—')
+                    ->searchable(),
                 TextColumn::make('tech_stack')
                     ->badge()
                     ->limitList(3),
